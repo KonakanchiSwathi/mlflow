@@ -74,6 +74,10 @@ def _call_openai_api(openai_uri, payload):
         json=openai_provider._add_model_to_payload_if_necessary(payload),
     ).json()
 
+    print(f'URl, {append_to_uri_path(openai_provider._request_base_url, "chat/completions")}')
+    print(f"headers, {openai_provider._request_headers}")
+    print(f"json, {openai_provider._add_model_to_payload_if_necessary(payload)}")
+    print(f"Actual response, {resp}")
     return json.loads(openai_provider._prepare_completion_response_payload(resp).json())
 
 

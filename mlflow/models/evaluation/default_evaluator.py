@@ -454,16 +454,35 @@ def _extract_output_and_other_columns(model_predictions, output_column_name):
             other_output_columns = pd.DataFrame(
                 [{k: v for k, v in p.items() if k != output_column_name} for p in model_predictions]
             )
+        else:
+            raise ValueError(
+                f"Output column name '{output_column_name}' is not found in the model predictions list: {model_predictions}"
+            )
     elif isinstance(model_predictions, pd.DataFrame):
+        print("Y_pred is a dataframe")
         if output_column_name in model_predictions.columns:
+            print("output_column_name is a y_pred dataframe")
             y_pred = model_predictions[output_column_name]
             other_output_columns = model_predictions.drop(columns=output_column_name)
+        else:
+            raise ValueError(
+                f"Output column name '{output_column_name}' is not found in the model predictions dataframe {model_predictions.columns}"
+            )
     elif isinstance(model_predictions, dict):
         if output_column_name in model_predictions:
             y_pred = pd.Series(model_predictions[output_column_name], name=output_column_name)
             other_output_columns = pd.DataFrame(
                 {k: v for k, v in model_predictions.items() if k != output_column_name}
             )
+        else:
+            raise ValueError(
+                f"Output column name '{output_column_name}' is not found in the model predictions dict {model_predictions}"
+            )
+    else:
+        raise TypeError(
+            "The model predictions must be a list of dictionaries, a pandas dataframe, or a "
+            "dictionary."
+        )
 
     return y_pred if y_pred is not None else model_predictions, other_output_columns
 
@@ -1144,7 +1163,7 @@ class DefaultEvaluator(ModelEvaluator):
                         raise MlflowException(
                             "Error: Metric Calculation Failed\n"
                             f"Metric '{extra_metric.name}' requires the column '{param_name}' to "
-                            "be defined in either the input data or resulting output data.\n"
+                            f"be defined in either the input data {input_df.columns} or resulting output {self.other_output_columns.columns} data.\n"
                             f"To resolve this issue, you may want to map {param_name} to an "
                             "existing column using the following configuration:\n"
                             f"evaluator_config={{'col_mapping': {{'{param_name}': 'col_name'}}}}"
@@ -1343,6 +1362,8 @@ class DefaultEvaluator(ModelEvaluator):
         self.y_pred, self.other_output_columns = _extract_output_and_other_columns(
             model_predictions, output_column_name
         )
+        print("Final y_pred: ", self.y_pred)
+        print("Final other_output_columns: ", self.other_output_columns)
 
     def _compute_builtin_metrics(self):
         """
