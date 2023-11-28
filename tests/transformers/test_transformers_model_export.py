@@ -81,6 +81,7 @@ _IMAGE_PROCESSOR_API_CHANGE_VERSION = "4.26.0"
 RUNNING_IN_GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
 GITHUB_ACTIONS_SKIP_REASON = "Test consumes too much memory"
 image_url = "https://raw.githubusercontent.com/mlflow/mlflow/master/tests/datasets/cat.png"
+
 # Test that can only be run locally:
 # - Summarization pipeline tests
 # - TextClassifier pipeline tests
